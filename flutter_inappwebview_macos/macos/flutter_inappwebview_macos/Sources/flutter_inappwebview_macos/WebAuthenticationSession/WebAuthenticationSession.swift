@@ -10,7 +10,15 @@ import AuthenticationServices
 import SafariServices
 import FlutterMacOS
 
-public class WebAuthenticationSession: NSObject, ASWebAuthenticationPresentationContextProviding, Disposable {
+@available(macOS 10.15, *)
+private class WebAuthenticationPresentationContextProviding: NSObject, ASWebAuthenticationPresentationContextProviding {
+    
+    public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return NSApplication.shared.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
+    }
+}
+
+public class WebAuthenticationSession: NSObject, Disposable {
     static let METHOD_CHANNEL_NAME_PREFIX = "com.pichillilorenzo/flutter_webauthenticationsession_"
     var id: String
     var plugin: InAppWebViewFlutterPlugin?
@@ -30,7 +38,7 @@ public class WebAuthenticationSession: NSObject, ASWebAuthenticationPresentation
         self.callbackURLScheme = callbackURLScheme
         if #available(macOS 10.15, *) {
             let session = ASWebAuthenticationSession(url: self.url, callbackURLScheme: self.callbackURLScheme, completionHandler: self.completionHandler)
-            session.presentationContextProvider = self
+            session.presentationContextProvider = WebAuthenticationPresentationContextProviding()
             self.session = session
         }
         let channel = FlutterMethodChannel(name: WebAuthenticationSession.METHOD_CHANNEL_NAME_PREFIX + id,
@@ -79,11 +87,6 @@ public class WebAuthenticationSession: NSObject, ASWebAuthenticationPresentation
         if #available(macOS 10.15, *), let session = session as? ASWebAuthenticationSession {
             session.cancel()
         }
-    }
-    
-    @available(macOS 10.15, *)
-    public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return NSApplication.shared.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
     }
     
     public func dispose() {
