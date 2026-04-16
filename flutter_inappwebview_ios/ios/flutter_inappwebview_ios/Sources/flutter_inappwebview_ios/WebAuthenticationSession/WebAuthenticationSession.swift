@@ -41,10 +41,10 @@ public class WebAuthenticationSession: NSObject, Disposable {
         if #available(iOS 12.0, *) {
             let session = ASWebAuthenticationSession(url: self.url, callbackURLScheme: self.callbackURLScheme, completionHandler: self.completionHandler)
             if #available(iOS 13.0, *) {
-                let auth = WebAuthenticationPresentationContextProviding()
+                let provider = WebAuthenticationPresentationContextProviding()
                 // keep reference
-                self._presentationContextProvider = auth
-                session.presentationContextProvider = auth
+                self._presentationContextProvider = provider
+                session.presentationContextProvider = provider
             }
             self.session = session
         } else if #available(iOS 11.0, *) {

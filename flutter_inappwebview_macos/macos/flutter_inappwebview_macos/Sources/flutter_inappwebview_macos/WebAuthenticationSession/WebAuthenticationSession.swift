@@ -40,10 +40,10 @@ public class WebAuthenticationSession: NSObject, Disposable {
         self.callbackURLScheme = callbackURLScheme
         if #available(macOS 10.15, *) {
             let session = ASWebAuthenticationSession(url: self.url, callbackURLScheme: self.callbackURLScheme, completionHandler: self.completionHandler)
-            let auth = WebAuthenticationPresentationContextProviding()
+            let provider = WebAuthenticationPresentationContextProviding()
             // keep reference
-            self._presentationContextProvider = auth
-            session.presentationContextProvider = auth
+            self._presentationContextProvider = provider
+            session.presentationContextProvider = provider
             self.session = session
         }
         let channel = FlutterMethodChannel(name: WebAuthenticationSession.METHOD_CHANNEL_NAME_PREFIX + id,
